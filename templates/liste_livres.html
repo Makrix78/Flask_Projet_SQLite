@@ -3,55 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des Livres</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Liste des livres disponibles</title>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mt-5">Liste des Livres Disponibles</h1>
+    <h2>Liste des livres disponibles</h2>
 
-        {% if livres %}
-            <table class="table table-striped mt-3">
-                <thead>
+    {% if livres %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Auteur</th>
+                    <th>Année de publication</th>
+                    <th>Quantité disponible</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for livre in livres %}
                     <tr>
-                        <th>Titre</th>
-                        <th>Auteur</th>
-                        <th>Année de Publication</th>
-                        <th>Quantité Disponible</th>
-                        <th>Actions</th>
+                        <td>{{ livre[1] }}</td>  <!-- Titre du livre -->
+                        <td>{{ livre[2] }}</td>  <!-- Auteur -->
+                        <td>{{ livre[3] }}</td>  <!-- Année de publication -->
+                        <td>{{ livre[4] }}</td>  <!-- Quantité disponible -->
                     </tr>
-                </thead>
-                <tbody>
-                    {% for livre in livres %}
-                        <tr>
-                            <td>{{ livre[1] }}</td> <!-- Titre -->
-                            <td>{{ livre[2] }}</td> <!-- Auteur -->
-                            <td>{{ livre[3] }}</td> <!-- Année de publication -->
-                            <td>{{ livre[4] }}</td> <!-- Quantité disponible -->
-                            <td>
-                                {% if est_authentifie() %}
-                                    {% if livre[4] > 0 %}
-                                        <a href="{{ url_for('emprunter_livre', livre_id=livre[0]) }}" class="btn btn-primary">Emprunter</a>
-                                    {% else %}
-                                        <span class="badge badge-danger">Indisponible</span>
-                                    {% endif %}
-                                {% else %}
-                                    <a href="{{ url_for('authentification') }}" class="btn btn-warning">Se connecter pour emprunter</a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>Aucun livre disponible.</p>
-        {% endif %}
-
-        <a href="{{ url_for('accueil') }}" class="btn btn-secondary mt-3">Retour à l'accueil</a>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun livre disponible.</p>
+    {% endif %}
 </body>
 </html>
