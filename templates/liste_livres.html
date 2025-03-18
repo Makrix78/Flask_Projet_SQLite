@@ -4,54 +4,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des livres disponibles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        td {
+            background-color: #f9f9f9;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .form-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        .form-container input,
+        .form-container select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-container button {
+            width: 100%;
+        }
+        .message {
+            text-align: center;
+            font-size: 16px;
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <h2>Liste des livres disponibles</h2>
 
-    <!-- Bouton Ajouter un livre visible pour tous -->
-    <a href="{{ url_for('ajouter_livre') }}">
-        <button>Ajouter un livre</button>
-    </a>
+<h2>Liste des livres disponibles</h2>
 
-    {% if livres %}
-        <table border="1">
-            <thead>
+<!-- Bouton Ajouter un livre visible pour tous -->
+<a href="{{ url_for('ajouter_livre') }}">
+    <button>Ajouter un livre</button>
+</a>
+
+{% if livres %}
+    <table>
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Auteur</th>
+                <th>Année de publication</th>
+                <th>Quantité disponible</th>
+                <th>Actions</th> <!-- Nouvelle colonne pour le bouton emprunter -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for livre in livres %}
                 <tr>
-                    <th>Titre</th>
-                    <th>Auteur</th>
-                    <th>Année de publication</th>
-                    <th>Quantité disponible</th>
-                    <th>Actions</th>
+                    <td>{{ livre[1] }}</td>  <!-- Titre du livre -->
+                    <td>{{ livre[2] }}</td>  <!-- Auteur -->
+                    <td>{{ livre[3] }}</td>  <!-- Année de publication -->
+                    <td>{{ livre[4] }}</td>  <!-- Quantité disponible -->
+                    <td>
+                        <!-- Formulaire pour emprunter le livre -->
+                        <button onclick="afficherFormulaireEmprunt({{ livre[0] }})">Emprunter</button>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for livre in livres %}
-                    <tr>
-                        <td>{{ livre[1] }}</td>  <!-- Titre du livre -->
-                        <td>{{ livre[2] }}</td>  <!-- Auteur -->
-                        <td>{{ livre[3] }}</td>  <!-- Année de publication -->
-                        <td>{{ livre[4] }}</td>  <!-- Quantité disponible -->
-                        <td>
-                            <!-- Formulaire pour emprunter le livre -->
-                            <form action="{{ url_for('emprunter_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
-                                <button type="submit" {% if livre[4] == 0 %} disabled {% endif %}>
-                                    Emprunter
-                                </button>
-                            </form>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Aucun livre disponible.</p>
+{% endif %}
 
-                            <!-- Formulaire pour supprimer le livre -->
-                            <form action="{{ url_for('supprimer_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
-                                <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?');">
-                                    Supprimer
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Aucun livre disponible.</p>
-    {% endif %}
+<!-- Formulaire dynamique d'emprunt de livre -->
+<div id="form-container" class="form-container">
+    <h3>Emprunter un livre</h3>
+    <form id="form-emprunt" method="POST">
+        <input type="hidden" name="livre_id" id="livre_id">
+        <label for="nom_utilisateur">Nom :</label>
+        <input type="text" name="nom_utilisateur" id="nom_utilisateur" required>
+        
+        <label for="date_emprunt">Date d'emprunt :</label>
+        <input type="date" name="date_emprunt" id="date_emprunt" required>
+        
+        <button type="submit">Emprunter</button>
+    </form>
+    <button onclick="fermerFormulaire()">Fermer</button>
+</div>
+
+<script>
+    function afficherFormulaireEmprunt(livreId) {
+        document.getElementById('form-container').style.display = 'block';
+        document.getElementById('livre_id').value = livreId;
+    }
+
+    function fermerFormulaire() {
+        document.getElementById('form-container').style.display = 'none';
+    }
+</script>
+
 </body>
 </html>
