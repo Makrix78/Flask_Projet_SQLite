@@ -1,99 +1,135 @@
 from flask import Flask, render_template_string, render_template, jsonify, request, redirect, url_for, session
 import sqlite3
 
-app = Flask(__name__)                                                                                                                  
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessionsdx
+app = Flask(__name__)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 
 # Fonction pour créer une clé "authentifie" dans la session utilisateur
 def est_authentifie():
     return session.get('authentifie')
 
+# Fonction pour vérifier le rôle de l'utilisateur (admin ou utilisateur)
+def est_admin():
+    return session.get('role') == 'admin'
+
 @app.route('/')
-def hello_world():
-    return render_template('hello.html')
+def accueil():
+    return render_template('accueil.html')
 
-@app.route('/lecture')
-def lecture():
-    if not est_authentifie():
-        # Rediriger vers la page d'authentification si l'utilisateur n'est pas authentifié
-        return redirect(url_for('authentification'))
-
-    # Si l'utilisateur est authentifié
-    return "<h2>Bravo, vous êtes authentifié</h2>"
-
+# Route d'authentification
 @app.route('/authentification', methods=['GET', 'POST'])
 def authentification():
     if request.method == 'POST':
-        # Vérifier les identifiants
-        if request.form['username'] == 'admin' and request.form['password'] == 'password': # password à cacher par la suite
+        email = request.form['email']
+        mot_de_passe = request.form['mot_de_passe']
+        
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
+        utilisateur = cursor.fetchone()
+        conn.close()
+
+        if utilisateur:
             session['authentifie'] = True
-            # Rediriger vers la route lecture après une authentification réussie
-            return redirect(url_for('lecture'))
+            session['role'] = utilisateur[5]  # Récupère le rôle (admin/utilisateur)
+            session['user_id'] = utilisateur[0]  # Récupère l'ID de l'utilisateur
+            return redirect(url_for('accueil'))
         else:
-            # Afficher un message d'erreur si les identifiants sont incorrects
             return render_template('formulaire_authentification.html', error=True)
 
     return render_template('formulaire_authentification.html', error=False)
 
-# Route pour afficher la fiche d'un client par son ID
-@app.route('/fiche_client/<int:post_id>')
-def Readfiche(post_id):
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients WHERE id = ?', (post_id,))
-    data = cursor.fetchall()
-    conn.close()
-    # Rendre le template HTML et transmettre les données
-    return render_template('read_data.html', data=data)
+@app.route('/deconnexion')
+def deconnexion():
+    session.clear()
+    return redirect(url_for('accueil'))
 
-# Route pour afficher tous les clients
-@app.route('/consultation/')
-def ReadBDD():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients;')
-    data = cursor.fetchall()
-    conn.close()
-    return render_template('read_data.html', data=data)
-
-# Formulaire d'enregistrement client
-@app.route('/enregistrer_client', methods=['GET'])
-def formulaire_client():
-    return render_template('formulaire.html')
-
-# Enregistrement d'un client dans la base de données
-@app.route('/enregistrer_client', methods=['POST'])
-def enregistrer_client():
-    nom = request.form['nom']
-    prenom = request.form['prenom']
-
-    # Connexion à la base de données
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-
-    # Exécution de la requête SQL pour insérer un nouveau client
-    cursor.execute('INSERT INTO clients (created, nom, prenom, adresse) VALUES (?, ?, ?, ?)', (1002938, nom, prenom, "ICI"))
-    conn.commit()
-    conn.close()
-    return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
-
-# Route pour la recherche d'un client par nom (Exercice 1)
-@app.route('/fiche_nom/', methods=['GET', 'POST'])
-def fiche_nom():
-    if not est_authentifie():
-        # Protection de la route par authentification 'user/12345'
+# Route pour l'enregistrement d'un livre
+@app.route('/enregistrer_livre', methods=['GET', 'POST'])
+def enregistrer_livre():
+    if not est_authentifie() or not est_admin():
         return redirect(url_for('authentification'))
 
     if request.method == 'POST':
-        nom_recherche = request.form['nom']
+        titre = request.form['titre']
+        auteur = request.form['auteur']
+        annee_publication = request.form['annee_publication']
+        quantite = request.form['quantite']
+
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM clients WHERE nom LIKE ?', ('%' + nom_recherche + '%',))  # Recherche par nom
-        data = cursor.fetchall()
+        cursor.execute("INSERT INTO livres (titre, auteur, annee_publication, quantite) VALUES (?, ?, ?, ?)",
+                       (titre, auteur, annee_publication, quantite))
+        conn.commit()
         conn.close()
-        return render_template('read_data.html', data=data)
-    
-    return render_template('formulaire_recherche.html')  # Formulaire pour entrer le nom à rechercher
+        return redirect(url_for('liste_livres'))
+
+    return render_template('formulaire_enregistrement_livre.html')
+
+# Route pour supprimer un livre
+@app.route('/supprimer_livre/<int:livre_id>', methods=['GET', 'POST'])
+def supprimer_livre(livre_id):
+    if not est_authentifie() or not est_admin():
+        return redirect(url_for('authentification'))
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM livres WHERE id = ?", (livre_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('liste_livres'))
+
+# Route pour afficher la liste des livres
+@app.route('/liste_livres')
+def liste_livres():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM livres WHERE quantite > 0")  # Afficher uniquement les livres disponibles
+    livres = cursor.fetchall()
+    conn.close()
+    return render_template('liste_livres.html', livres=livres)
+
+# Route pour rechercher un livre par titre ou auteur
+@app.route('/rechercher_livre', methods=['GET', 'POST'])
+def rechercher_livre():
+    if not est_authentifie():
+        return redirect(url_for('authentification'))
+
+    if request.method == 'POST':
+        recherche = request.form['recherche']
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM livres WHERE titre LIKE ? OR auteur LIKE ?", ('%' + recherche + '%', '%' + recherche + '%'))
+        livres = cursor.fetchall()
+        conn.close()
+        return render_template('liste_livres.html', livres=livres)
+
+    return render_template('formulaire_recherche_livre.html')
+
+# Route pour emprunter un livre
+@app.route('/emprunter_livre/<int:livre_id>', methods=['GET'])
+def emprunter_livre(livre_id):
+    if not est_authentifie():
+        return redirect(url_for('authentification'))
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    # Vérifier la disponibilité du livre
+    cursor.execute("SELECT quantite FROM livres WHERE id = ?", (livre_id,))
+    livre = cursor.fetchone()
+    if livre and livre[0] > 0:
+        # Réduire la quantité de ce livre
+        cursor.execute("UPDATE livres SET quantite = quantite - 1 WHERE id = ?", (livre_id,))
+        # Ajouter l'emprunt dans la table des emprunts
+        cursor.execute("INSERT INTO emprunts (utilisateur_id, livre_id, date_retour_prevu) VALUES (?, ?, datetime('now', '+14 days'))",
+                       (session['user_id'], livre_id))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('liste_livres'))
+    else:
+        conn.close()
+        return "Désolé, ce livre n'est pas disponible en ce moment."
 
 if __name__ == "__main__":
-  app.run(debug=True) 
+    app.run(debug=True)
