@@ -15,9 +15,24 @@
             text-align: center;
             margin-top: 20px;
         }
+        .header-btn {
+            text-align: left;
+            padding: 10px;
+            margin-left: 10px;
+        }
+        .header-btn button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .header-btn button:hover {
+            background-color: #45a049;
+        }
         table {
             width: 80%;
-            margin: 0 auto;
+            margin: 20px auto;
             border-collapse: collapse;
             background-color: white;
         }
@@ -76,9 +91,11 @@
 <h2>Liste des livres disponibles</h2>
 
 <!-- Bouton Ajouter un livre visible pour tous -->
-<a href="{{ url_for('ajouter_livre') }}">
-    <button>Ajouter un livre</button>
-</a>
+<div class="header-btn">
+    <a href="{{ url_for('ajouter_livre') }}">
+        <button>Ajouter un livre</button>
+    </a>
+</div>
 
 {% if livres %}
     <table>
@@ -88,7 +105,7 @@
                 <th>Auteur</th>
                 <th>Année de publication</th>
                 <th>Quantité disponible</th>
-                <th>Actions</th> <!-- Nouvelle colonne pour le bouton emprunter -->
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -100,7 +117,14 @@
                     <td>{{ livre[4] }}</td>  <!-- Quantité disponible -->
                     <td>
                         <!-- Formulaire pour emprunter le livre -->
-                        <button onclick="afficherFormulaireEmprunt({{ livre[0] }})">Emprunter</button>
+                        <button onclick="afficherFormulaireEmprunt({{ livre[0] }})" {% if livre[4] == 0 %} disabled {% endif %}>Emprunter</button>
+
+                        <!-- Formulaire pour supprimer le livre -->
+                        <form action="{{ url_for('supprimer_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
+                            <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?');">
+                                Supprimer
+                            </button>
+                        </form>
                     </td>
                 </tr>
             {% endfor %}
@@ -113,7 +137,7 @@
 <!-- Formulaire dynamique d'emprunt de livre -->
 <div id="form-container" class="form-container">
     <h3>Emprunter un livre</h3>
-    <form id="form-emprunt" method="POST">
+    <form id="form-emprunt" method="POST" action="{{ url_for('emprunter_livre') }}">
         <input type="hidden" name="livre_id" id="livre_id">
         <label for="nom_utilisateur">Nom :</label>
         <input type="text" name="nom_utilisateur" id="nom_utilisateur" required>
