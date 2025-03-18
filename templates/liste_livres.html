@@ -8,6 +8,13 @@
 <body>
     <h2>Liste des livres disponibles</h2>
 
+    <!-- Afficher le bouton Ajouter un livre si l'utilisateur est admin -->
+    {% if session['role'] == 'admin' %}
+        <a href="{{ url_for('ajouter_livre') }}">
+            <button>Ajouter un livre</button>
+        </a>
+    {% endif %}
+
     {% if livres %}
         <table border="1">
             <thead>
