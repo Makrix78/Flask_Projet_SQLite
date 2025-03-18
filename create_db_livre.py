@@ -35,8 +35,8 @@ if not cur.fetchone():
     cur.execute("INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role) VALUES (?, ?, ?, ?, ?)",
                 ('Dupont', 'Jean', 'jean.dupont@email.com', 'user123', 'utilisateur'))
 
-# Insérer 10000 livres
-insert_books(cur, 10000)
+# Insérer seulement 50 livres
+insert_books(cur, 50)
 
 # Sauvegarder les changements dans la base de données
 connection.commit()
@@ -44,4 +44,4 @@ connection.commit()
 # Fermer la connexion
 connection.close()
 
-print("10000 livres ont été insérés avec succès dans la base de données.")
+print("50 livres ont été insérés avec succès dans la base de données.")
