@@ -44,7 +44,7 @@ def authentification():
                 session['authentifie'] = True
                 session['role'] = utilisateur[5]  # Récupère le rôle (admin/utilisateur)
                 session['user_id'] = utilisateur[0]  # Récupère l'ID de l'utilisateur
-                return redirect(url_for('liste_livres'))
+                return redirect(url_for('liste_livres'))  # Redirige vers la page des livres après l'authentification
             else:
                 return render_template('formulaire_authentification.html', error="Identifiant ou mot de passe incorrect.")
 
@@ -61,15 +61,15 @@ def authentification():
 # Route pour la déconnexion
 @app.route('/deconnexion')
 def deconnexion():
-    session.clear()
-    return redirect(url_for('accueil'))
+    session.clear()  # Efface la session
+    return redirect(url_for('accueil'))  # Redirige vers la page d'accueil après la déconnexion
 
 # Route pour afficher la liste des livres
 @app.route('/liste_livres')
 def liste_livres():
     # Vérifier si l'utilisateur est authentifié
     if not est_authentifie():
-        return redirect(url_for('authentification'))
+        return redirect(url_for('authentification'))  # Rediriger vers la page d'authentification si l'utilisateur n'est pas connecté
 
     try:
         # Connexion à la base de données
