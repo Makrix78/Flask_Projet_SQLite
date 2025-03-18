@@ -36,7 +36,7 @@ def authentification():
 
             if utilisateur:
                 session['authentifie'] = True
-                session['role'] = utilisateur[5]
+                session['role'] = utilisateur[5]  # Récupère le rôle de l'utilisateur
                 session['user_id'] = utilisateur[0]
                 return redirect(url_for('accueil'))
             else:
@@ -50,22 +50,6 @@ def authentification():
 
     return render_template('formulaire_authentification.html', error=False)
 
-@app.route('/supprimer_livre/<int:livre_id>', methods=['POST'])
-def supprimer_livre(livre_id):
-    try:
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-
-        # Suppression du livre en fonction de son ID
-        cursor.execute("DELETE FROM livres WHERE id = ?", (livre_id,))
-        conn.commit()
-        conn.close()
-
-        return redirect(url_for('liste_livres'))  # Redirection après suppression
-
-    except sqlite3.DatabaseError as e:
-        print("Erreur de base de données lors de la suppression :", e)
-        return redirect(url_for('liste_livres'))  # Retour à la liste en cas d'erreur
 # Route pour la déconnexion
 @app.route('/deconnexion')
 def deconnexion():
@@ -120,6 +104,61 @@ def ajouter_livre():
             return render_template('ajouter_livre.html', error=f"Erreur serveur : {e}")
 
     return render_template('ajouter_livre.html')  # Affichage du formulaire d'ajout
+
+# Route pour supprimer un livre
+@app.route('/supprimer_livre/<int:livre_id>', methods=['POST'])
+def supprimer_livre(livre_id):
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        # Suppression du livre en fonction de son ID
+        cursor.execute("DELETE FROM livres WHERE id = ?", (livre_id,))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('liste_livres'))  # Redirection après suppression
+
+    except sqlite3.DatabaseError as e:
+        print("Erreur de base de données lors de la suppression :", e)
+        return redirect(url_for('liste_livres'))  # Retour à la liste en cas d'erreur
+
+# Route pour emprunter un livre
+@app.route('/emprunter_livre/<int:livre_id>', methods=['POST'])
+def emprunter_livre(livre_id):
+    if not est_authentifie():  # Vérifier si l'utilisateur est authentifié
+        return redirect(url_for('authentification'))  # Redirige si non authentifié
+
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        # Vérifier la quantité disponible avant l'emprunt
+        cursor.execute("SELECT quantite FROM livres WHERE id = ?", (livre_id,))
+        livre = cursor.fetchone()
+
+        if livre and livre[0] > 0:
+            # Réduire la quantité de 1
+            cursor.execute("UPDATE livres SET quantite = quantite - 1 WHERE id = ?", (livre_id,))
+            conn.commit()
+
+            # Enregistrer l'emprunt dans la table "emprunts"
+            cursor.execute("INSERT INTO emprunts (user_id, livre_id) VALUES (?, ?)", (session['user_id'], livre_id))
+            conn.commit()
+
+            conn.close()
+            return redirect(url_for('liste_livres'))  # Rediriger après l'emprunt
+        else:
+            conn.close()
+            return redirect(url_for('liste_livres', message="Quantité insuffisante pour emprunter ce livre."))
+
+    except sqlite3.DatabaseError as e:
+        print("Erreur de base de données lors de l'emprunt :", e)
+        return redirect(url_for('liste_livres', message="Erreur lors de l'emprunt du livre."))
+
+    except Exception as e:
+        print("Erreur serveur :", e)
+        return redirect(url_for('liste_livres', message="Erreur serveur."))
 
 # Lancer l'application
 if __name__ == "__main__":
