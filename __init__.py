@@ -50,6 +50,22 @@ def authentification():
 
     return render_template('formulaire_authentification.html', error=False)
 
+@app.route('/supprimer_livre/<int:livre_id>', methods=['POST'])
+def supprimer_livre(livre_id):
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        # Suppression du livre en fonction de son ID
+        cursor.execute("DELETE FROM livres WHERE id = ?", (livre_id,))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('liste_livres'))  # Redirection après suppression
+
+    except sqlite3.DatabaseError as e:
+        print("Erreur de base de données lors de la suppression :", e)
+        return redirect(url_for('liste_livres'))  # Retour à la liste en cas d'erreur
 # Route pour la déconnexion
 @app.route('/deconnexion')
 def deconnexion():
