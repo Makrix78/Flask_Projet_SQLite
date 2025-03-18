@@ -67,10 +67,6 @@ def deconnexion():
 # Route pour afficher la liste des livres
 @app.route('/liste_livres')
 def liste_livres():
-    # Vérifier si l'utilisateur est authentifié
-    if not est_authentifie():
-        return render_template('formulaire_authentification.html', error="Veuillez vous connecter pour accéder à la liste des livres.")
-
     try:
         # Connexion à la base de données
         conn = sqlite3.connect('database.db')
