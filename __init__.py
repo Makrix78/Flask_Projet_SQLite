@@ -45,30 +45,24 @@ def deconnexion():
     return redirect(url_for('accueil'))
 
 # Route pour l'enregistrement d'un livre
-@app.route('/liste_livres')
-def liste_livres():
-    try:
-        # Connexion à la base de données
+@app.route('/enregistrer_livre', methods=['GET', 'POST'])
+def enregistrer_livre():
+    if not est_authentifie() or not est_admin():
+        return redirect(url_for('authentification'))
+
+    if request.method == 'POST':
+        titre = request.form['titre']
+        auteur = request.form['auteur']
+        annee_publication = request.form['annee_publication']
+        quantite = request.form['quantite']
+
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM livres WHERE quantite > 0")  # Afficher uniquement les livres disponibles
-        livres = cursor.fetchall()
+        cursor.execute("INSERT INTO livres (titre, auteur, annee_publication, quantite) VALUES (?, ?, ?, ?)",
+                       (titre, auteur, annee_publication, quantite))
+        conn.commit()
         conn.close()
-
-        # Si aucun livre trouvé, afficher un message
-        if not livres:
-            return "<h2>Aucun livre disponible.</h2>"
-
-        return render_template('liste_livres.html', livres=livres)
-
-    except sqlite3.Error as e:
-        # En cas d'erreur avec la base de données
-        return f"<h2>Erreur de base de données : {e}</h2>"
-
-    except Exception as e:
-        # Pour toute autre erreur
-        return f"<h2>Erreur serveur : {e}</h2>"
-
+        return redirect(url_for('liste_livres'))
 
     return render_template('formulaire_enregistrement_livre.html')
 
