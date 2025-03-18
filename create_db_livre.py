@@ -20,12 +20,20 @@ def insert_books(cur, num_books):
         cur.execute("INSERT INTO livres (titre, auteur, annee_publication, quantite) VALUES (?, ?, ?, ?)",
                     (titre, auteur, annee_publication, quantite))
 
-# Ajouter des utilisateurs
+# Ajouter des utilisateurs s'ils n'existent pas déjà
 cur = connection.cursor()
-cur.execute("INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role) VALUES (?, ?, ?, ?, ?)",
-            ('Admin', 'Super', 'admin@biblio.com', 'password', 'admin'))
-cur.execute("INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role) VALUES (?, ?, ?, ?, ?)",
-            ('Dupont', 'Jean', 'jean.dupont@email.com', 'user123', 'utilisateur'))
+
+# Vérifier si l'utilisateur Admin existe déjà
+cur.execute("SELECT * FROM utilisateurs WHERE email = 'admin@biblio.com'")
+if not cur.fetchone():
+    cur.execute("INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role) VALUES (?, ?, ?, ?, ?)",
+                ('Admin', 'Super', 'admin@biblio.com', 'password', 'admin'))
+
+# Vérifier si l'utilisateur Dupont existe déjà
+cur.execute("SELECT * FROM utilisateurs WHERE email = 'jean.dupont@email.com'")
+if not cur.fetchone():
+    cur.execute("INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role) VALUES (?, ?, ?, ?, ?)",
+                ('Dupont', 'Jean', 'jean.dupont@email.com', 'user123', 'utilisateur'))
 
 # Insérer 10000 livres
 insert_books(cur, 10000)
