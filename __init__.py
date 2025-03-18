@@ -99,13 +99,27 @@ def liste_livres():
     if not est_authentifie():
         return redirect(url_for('authentification'))
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM livres WHERE quantite > 0")  # Afficher uniquement les livres disponibles
-    livres = cursor.fetchall()
-    conn.close()
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM livres WHERE quantite > 0")  # Afficher uniquement les livres disponibles
+        livres = cursor.fetchall()
+        conn.close()
 
-    return render_template('liste_livres.html', livres=livres)
+        # Vérifier si des livres sont trouvés
+        if not livres:
+            return "<h2>Aucun livre disponible.</h2>"
+
+        return render_template('liste_livres.html', livres=livres)
+
+    except sqlite3.DatabaseError as e:
+        print("Erreur de base de données lors de l'affichage des livres:", e)
+        return f"<h2>Erreur de base de données : {e}</h2>"
+
+    except Exception as e:
+        print("Erreur serveur:", e)
+        return f"<h2>Erreur serveur : {e}</h2>"
+
 
 # Route pour emprunter un livre
 @app.route('/emprunter_livre/<int:id>', methods=['POST'])
