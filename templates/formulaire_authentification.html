@@ -8,7 +8,7 @@
 <body>
     <h2>Authentification</h2>
     {% if error %}
-        <p style="color: red;">Identifiant ou mot de passe incorrect.</p>
+        <p style="color: red;">{{ error }}</p>
     {% endif %}
     <form action="{{ url_for('authentification') }}" method="post">
         <label for="email">Email:</label><br>
