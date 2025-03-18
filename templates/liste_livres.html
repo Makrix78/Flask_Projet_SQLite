@@ -21,7 +21,7 @@
                     <th>Auteur</th>
                     <th>Année de publication</th>
                     <th>Quantité disponible</th>
-                    <th>Actions</th> <!-- Nouvelle colonne pour le bouton supprimer -->
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +32,13 @@
                         <td>{{ livre[3] }}</td>  <!-- Année de publication -->
                         <td>{{ livre[4] }}</td>  <!-- Quantité disponible -->
                         <td>
+                            <!-- Formulaire pour emprunter le livre -->
+                            <form action="{{ url_for('emprunter_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
+                                <button type="submit" {% if livre[4] == 0 %} disabled {% endif %}>
+                                    Emprunter
+                                </button>
+                            </form>
+
                             <!-- Formulaire pour supprimer le livre -->
                             <form action="{{ url_for('supprimer_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
                                 <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?');">
