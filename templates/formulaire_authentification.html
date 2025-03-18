@@ -11,10 +11,10 @@
         <p style="color: red;">Identifiant ou mot de passe incorrect.</p>
     {% endif %}
     <form action="{{ url_for('authentification') }}" method="post">
-        <label for="username">Nom d'utilisateur:</label><br>
-        <input type="text" id="username" name="username"><br>
-        <label for="password">Mot de passe:</label><br>
-        <input type="password" id="password" name="password"><br><br>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br>
+        <label for="mot_de_passe">Mot de passe:</label><br>
+        <input type="password" id="mot_de_passe" name="mot_de_passe" required><br><br>
         <input type="submit" value="Se connecter">
     </form>
 </body>
