@@ -20,26 +20,33 @@ def accueil():
 @app.route('/authentification', methods=['GET', 'POST'])
 def authentification():
     if request.method == 'POST':
-        email = request.form['email']
-        mot_de_passe = request.form['mot_de_passe']
-        
+        email = request.form.get('email')
+        mot_de_passe = request.form.get('mot_de_passe')
+
+        # Vérification si les champs sont vides
+        if not email or not mot_de_passe:
+            return render_template('formulaire_authentification.html', error="Veuillez remplir tous les champs.")
+
         try:
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
+
+            # Recherche de l'utilisateur dans la base de données
             cursor.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
             utilisateur = cursor.fetchone()
             conn.close()
 
+            # Si l'utilisateur existe, on l'authentifie
             if utilisateur:
                 session['authentifie'] = True
                 session['role'] = utilisateur[5]  # Récupère le rôle (admin/utilisateur)
                 session['user_id'] = utilisateur[0]  # Récupère l'ID de l'utilisateur
                 return redirect(url_for('accueil'))
             else:
-                return render_template('formulaire_authentification.html', error=True)
+                return render_template('formulaire_authentification.html', error="Identifiant ou mot de passe incorrect.")
 
         except sqlite3.DatabaseError as e:
-            return f"<h2>Erreur de base de données : {e}</h2>"
+            return render_template('formulaire_authentification.html', error=f"Erreur de base de données : {e}")
 
     return render_template('formulaire_authentification.html', error=False)
 
@@ -95,18 +102,16 @@ def supprimer_livre(livre_id):
 # Route pour afficher la liste des livres
 @app.route('/liste_livres')
 def liste_livres():
-    # Vérifier si l'utilisateur est authentifié
     if not est_authentifie():
         return redirect(url_for('authentification'))
 
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM livres WHERE quantite > 0")  # Afficher uniquement les livres disponibles
+        cursor.execute("SELECT * FROM livres WHERE quantite > 0")
         livres = cursor.fetchall()
         conn.close()
 
-        # Vérifier si des livres sont trouvés
         if not livres:
             return "<h2>Aucun livre disponible.</h2>"
 
@@ -149,14 +154,11 @@ def emprunter_livre(livre_id):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        # Vérifier la disponibilité du livre
         cursor.execute("SELECT quantite FROM livres WHERE id = ?", (livre_id,))
         livre = cursor.fetchone()
 
         if livre and livre[0] > 0:
-            # Réduire la quantité de ce livre
             cursor.execute("UPDATE livres SET quantite = quantite - 1 WHERE id = ?", (livre_id,))
-            # Ajouter l'emprunt dans la table des emprunts
             cursor.execute("INSERT INTO emprunts (utilisateur_id, livre_id, date_retour_prevu) VALUES (?, ?, datetime('now', '+14 days'))",
                            (session['user_id'], livre_id))
             conn.commit()
