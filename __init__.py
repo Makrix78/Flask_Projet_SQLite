@@ -34,18 +34,16 @@ def authentification():
             # Recherche de l'utilisateur dans la base de données
             cursor.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
             utilisateur = cursor.fetchone()
-            conn.close()
-
-            # Debug : log l'utilisateur trouvé
-            print("Utilisateur trouvé:", utilisateur)
 
             # Si l'utilisateur existe, on l'authentifie
             if utilisateur:
                 session['authentifie'] = True
                 session['role'] = utilisateur[5]  # Récupère le rôle (admin/utilisateur)
                 session['user_id'] = utilisateur[0]  # Récupère l'ID de l'utilisateur
+                conn.close()
                 return redirect(url_for('accueil'))
             else:
+                conn.close()
                 return render_template('formulaire_authentification.html', error="Identifiant ou mot de passe incorrect.")
 
         except sqlite3.DatabaseError as e:
@@ -67,9 +65,8 @@ def deconnexion():
 # Route pour afficher la liste des livres
 @app.route('/liste_livres')
 def liste_livres():
-    # Vérifier si l'utilisateur est authentifié
     if not est_authentifie():
-        return redirect(url_for('authentification'))  # Rediriger vers la page d'authentification si non connecté
+        return redirect(url_for('authentification'))
 
     try:
         # Connexion à la base de données
