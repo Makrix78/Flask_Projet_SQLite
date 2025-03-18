@@ -71,3 +71,40 @@ def liste_livres():
         return render_template('liste_livres.html', livres=[], message=f"Erreur de base de données : {e}")
 
     except Exception as e:
+        return render_template('liste_livres.html', livres=[], message=f"Erreur serveur : {e}")
+
+# Route pour ajouter un livre
+@app.route('/ajouter_livre', methods=['GET', 'POST'])
+def ajouter_livre():
+    if not est_authentifie() or not est_admin():
+        return redirect(url_for('accueil'))  # Redirection si l'utilisateur n'est pas admin
+
+    if request.method == 'POST':
+        titre = request.form.get('titre')
+        auteur = request.form.get('auteur')
+        annee = request.form.get('annee')
+        quantite = request.form.get('quantite')
+
+        if not titre or not auteur or not annee or not quantite:
+            return render_template('ajouter_livre.html', error="Veuillez remplir tous les champs.")
+
+        try:
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO livres (titre, auteur, annee_publication, quantite) VALUES (?, ?, ?, ?)",
+                           (titre, auteur, annee, quantite))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('liste_livres'))  # Redirection vers la liste des livres après ajout
+
+        except sqlite3.DatabaseError as e:
+            return render_template('ajouter_livre.html', error=f"Erreur de base de données : {e}")
+
+        except Exception as e:
+            return render_template('ajouter_livre.html', error=f"Erreur serveur : {e}")
+
+    return render_template('ajouter_livre.html')  # Affichage du formulaire d'ajout
+
+# Lancer l'application
+if __name__ == "__main__":
+    app.run(debug=True)
