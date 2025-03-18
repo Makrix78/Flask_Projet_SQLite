@@ -44,7 +44,7 @@ def authentification():
                 session['authentifie'] = True
                 session['role'] = utilisateur[5]  # Récupère le rôle (admin/utilisateur)
                 session['user_id'] = utilisateur[0]  # Récupère l'ID de l'utilisateur
-                return redirect(url_for('accueil'))
+                return redirect(url_for('liste_livres'))
             else:
                 return render_template('formulaire_authentification.html', error="Identifiant ou mot de passe incorrect.")
 
