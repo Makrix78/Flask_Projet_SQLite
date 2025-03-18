@@ -44,7 +44,7 @@ def authentification():
                 session['authentifie'] = True
                 session['role'] = utilisateur[5]  # Récupère le rôle (admin/utilisateur)
                 session['user_id'] = utilisateur[0]  # Récupère l'ID de l'utilisateur
-                return redirect(url_for('liste_livres'))  # Redirige vers la page des livres après l'authentification
+                return redirect(url_for('accueil'))
             else:
                 return render_template('formulaire_authentification.html', error="Identifiant ou mot de passe incorrect.")
 
@@ -61,21 +61,21 @@ def authentification():
 # Route pour la déconnexion
 @app.route('/deconnexion')
 def deconnexion():
-    session.clear()  # Efface la session
-    return redirect(url_for('accueil'))  # Redirige vers la page d'accueil après la déconnexion
+    session.clear()
+    return redirect(url_for('accueil'))
 
 # Route pour afficher la liste des livres
 @app.route('/liste_livres')
 def liste_livres():
     # Vérifier si l'utilisateur est authentifié
     if not est_authentifie():
-        return redirect(url_for('authentification'))  # Rediriger vers la page d'authentification si l'utilisateur n'est pas connecté
+        return redirect(url_for('authentification'))
 
     try:
         # Connexion à la base de données
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-
+        
         # Sélectionner les livres disponibles (quantité > 0)
         cursor.execute("SELECT * FROM livres WHERE quantite > 0")
         livres = cursor.fetchall()
@@ -87,7 +87,7 @@ def liste_livres():
         # Vérifier si des livres sont trouvés
         if not livres:
             return render_template('liste_livres.html', livres=[], message="Aucun livre disponible.")
-
+        
         # Afficher les livres disponibles
         return render_template('liste_livres.html', livres=livres, message="")
 
