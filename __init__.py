@@ -8,7 +8,7 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 def est_authentifie():
     return session.get('authentifie')
 
-# Fonction pour vérifier le rôle de l'utilisateur (admin ou utilisateur)
+# Fonction pour vérifier si l'utilisateur est un admin
 def est_admin():
     return session.get('role') == 'admin'
 
@@ -95,6 +95,10 @@ def supprimer_livre(livre_id):
 # Route pour afficher la liste des livres
 @app.route('/liste_livres')
 def liste_livres():
+    # Vérifier si l'utilisateur est authentifié
+    if not est_authentifie():
+        return redirect(url_for('authentification'))
+
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
