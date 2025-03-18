@@ -1,8 +1,4 @@
 from flask import Flask, render_template_string, render_template, jsonify, request, redirect, url_for, session
-from flask import render_template
-from flask import json
-from urllib.request import urlopen
-from werkzeug.utils import secure_filename
 import sqlite3
 
 app = Flask(__name__)                                                                                                                  
@@ -22,7 +18,7 @@ def lecture():
         # Rediriger vers la page d'authentification si l'utilisateur n'est pas authentifié
         return redirect(url_for('authentification'))
 
-  # Si l'utilisateur est authentifié
+    # Si l'utilisateur est authentifié
     return "<h2>Bravo, vous êtes authentifié</h2>"
 
 @app.route('/authentification', methods=['GET', 'POST'])
@@ -39,6 +35,7 @@ def authentification():
 
     return render_template('formulaire_authentification.html', error=False)
 
+# Route pour afficher la fiche d'un client par son ID
 @app.route('/fiche_client/<int:post_id>')
 def Readfiche(post_id):
     conn = sqlite3.connect('database.db')
@@ -49,6 +46,7 @@ def Readfiche(post_id):
     # Rendre le template HTML et transmettre les données
     return render_template('read_data.html', data=data)
 
+# Route pour afficher tous les clients
 @app.route('/consultation/')
 def ReadBDD():
     conn = sqlite3.connect('database.db')
@@ -58,10 +56,12 @@ def ReadBDD():
     conn.close()
     return render_template('read_data.html', data=data)
 
+# Formulaire d'enregistrement client
 @app.route('/enregistrer_client', methods=['GET'])
 def formulaire_client():
-    return render_template('formulaire.html')  # afficher le formulaire
+    return render_template('formulaire.html')
 
+# Enregistrement d'un client dans la base de données
 @app.route('/enregistrer_client', methods=['POST'])
 def enregistrer_client():
     nom = request.form['nom']
@@ -76,6 +76,24 @@ def enregistrer_client():
     conn.commit()
     conn.close()
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
-                                                                                                                                       
+
+# Route pour la recherche d'un client par nom (Exercice 1)
+@app.route('/fiche_nom/', methods=['GET', 'POST'])
+def fiche_nom():
+    if not est_authentifie():
+        # Protection de la route par authentification 'user/12345'
+        return redirect(url_for('authentification'))
+
+    if request.method == 'POST':
+        nom_recherche = request.form['nom']
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM clients WHERE nom LIKE ?', ('%' + nom_recherche + '%',))  # Recherche par nom
+        data = cursor.fetchall()
+        conn.close()
+        return render_template('read_data.html', data=data)
+    
+    return render_template('formulaire_recherche.html')  # Formulaire pour entrer le nom à rechercher
+
 if __name__ == "__main__":
   app.run(debug=True)
