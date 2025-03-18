@@ -6,6 +6,7 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 
 # Fonction pour vérifier si l'utilisateur est authentifié
 def est_authentifie():
+    print("Vérification de l'authentification: ", session.get('authentifie'))
     return session.get('authentifie')
 
 # Fonction pour vérifier si l'utilisateur est un admin
@@ -96,6 +97,7 @@ def enregistrer_livre():
 def liste_livres():
     # Vérifier si l'utilisateur est authentifié
     if not est_authentifie():
+        print("Utilisateur non authentifié. Redirection vers la page d'authentification.")
         return redirect(url_for('authentification'))
 
     try:
