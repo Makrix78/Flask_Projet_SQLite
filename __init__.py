@@ -75,7 +75,7 @@ def liste_livres():
         # Connexion à la base de données
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        
+
         # Sélectionner les livres disponibles (quantité > 0)
         cursor.execute("SELECT * FROM livres WHERE quantite > 0")
         livres = cursor.fetchall()
@@ -87,7 +87,7 @@ def liste_livres():
         # Vérifier si des livres sont trouvés
         if not livres:
             return render_template('liste_livres.html', livres=[], message="Aucun livre disponible.")
-        
+
         # Afficher les livres disponibles
         return render_template('liste_livres.html', livres=livres, message="")
 
