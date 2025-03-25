@@ -3,98 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentification</title>
+    <title>Connexion • Bibliothèque en ligne</title>
     <style>
         body {
+            margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
+            background: linear-gradient(120deg, #4b6cb7, #182848);
+            color: #333;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             height: 100vh;
         }
 
-        .container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            max-width: 400px;
+        .login-container {
+            background-color: #fff;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             width: 100%;
+            max-width: 420px;
         }
 
-        h2 {
+        .login-container h2 {
+            margin-bottom: 20px;
             text-align: center;
-            color: #333;
+            color: #2c3e50;
         }
 
-        label {
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
             display: block;
-            margin-top: 15px;
-            color: #555;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
 
-        input[type="email"],
-        input[type="password"] {
+        .form-group input {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 6px;
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
 
-        input[type="submit"] {
+        .form-group input:focus {
+            border-color: #4b6cb7;
+            outline: none;
+        }
+
+        .btn-login {
             width: 100%;
-            background-color: #007bff;
-            color: white;
             padding: 12px;
-            margin-top: 20px;
+            background-color: #4b6cb7;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            color: #fff;
             font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        input[type="submit"]:hover {
-            background-color: #0056b3;
+        .btn-login:hover {
+            background-color: #3a539b;
         }
 
-        .info {
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .error {
-            color: red;
+        .error-message {
+            color: #e74c3c;
             text-align: center;
             margin-bottom: 15px;
+        }
+
+        .test-info {
+            margin-top: 25px;
+            font-size: 0.9em;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="login-container">
         <h2>Connexion à la bibliothèque</h2>
 
         {% if error %}
-            <p class="error">{{ error }}</p>
+            <div class="error-message">{{ error }}</div>
         {% endif %}
 
         <form action="{{ url_for('authentification') }}" method="post">
-            <label for="email">Email :</label>
-            <input type="email" id="email" name="email" required>
+            <div class="form-group">
+                <label for="email">Adresse e-mail</label>
+                <input type="email" id="email" name="email" required placeholder="ex : admin@biblio.com">
+            </div>
 
-            <label for="mot_de_passe">Mot de passe :</label>
-            <input type="password" id="mot_de_passe" name="mot_de_passe" required>
+            <div class="form-group">
+                <label for="mot_de_passe">Mot de passe</label>
+                <input type="password" id="mot_de_passe" name="mot_de_passe" required placeholder="Votre mot de passe">
+            </div>
 
-            <input type="submit" value="Se connecter">
+            <button type="submit" class="btn-login">Se connecter</button>
         </form>
 
-        <div class="info">
-            <strong>Identifiants test :</strong><br>
-            Email : admin@biblio.com<br>
-            Mot de passe : password
+        <div class="test-info">
+            <strong>Identifiants de test</strong><br>
+            Email : <code>admin@biblio.com</code><br>
+            Mot de passe : <code>password</code>
         </div>
     </div>
 </body>
