@@ -3,20 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des livres disponibles</title>
+    <title>Liste des livres</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .top-bar {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .top-bar button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .top-bar button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        td button {
+            padding: 6px 12px;
+            margin: 2px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        .emprunter {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .emprunter:hover {
+            background-color: #138496;
+        }
+
+        .supprimer {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .supprimer:hover {
+            background-color: #c82333;
+        }
+
+        p {
+            text-align: center;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <h2>Liste des livres disponibles</h2>
+    <div class="container">
+        <h2>Liste des livres disponibles</h2>
 
-    <!-- Affiche le bouton seulement si admin -->
-    {% if session.get('role') == 'admin' %}
-    <a href="{{ url_for('ajouter_livre') }}">
-        <button>Ajouter un livre</button>
-    </a>
-    {% endif %}
+        {% if session.get('role') == 'admin' %}
+        <div class="top-bar">
+            <a href="{{ url_for('ajouter_livre') }}">
+                <button>Ajouter un livre</button>
+            </a>
+        </div>
+        {% endif %}
 
-    {% if livres %}
-        <table border="1">
+        {% if livres %}
+        <table>
             <thead>
                 <tr>
                     <th>Titre</th>
@@ -34,14 +126,12 @@
                     <td>{{ livre[3] }}</td>
                     <td>{{ livre[4] }}</td>
                     <td>
-                        <!-- Emprunter -->
                         <form action="{{ url_for('emprunter_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
-                            <button type="submit" {% if livre[4] == 0 %}disabled{% endif %}>Emprunter</button>
+                            <button class="emprunter" type="submit" {% if livre[4] == 0 %}disabled{% endif %}>Emprunter</button>
                         </form>
-                        <!-- Supprimer (admin uniquement) -->
                         {% if session.get('role') == 'admin' %}
                         <form action="{{ url_for('supprimer_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
-                            <button type="submit" onclick="return confirm('Supprimer ce livre ?')">Supprimer</button>
+                            <button class="supprimer" type="submit" onclick="return confirm('Supprimer ce livre ?')">Supprimer</button>
                         </form>
                         {% endif %}
                     </td>
@@ -49,8 +139,9 @@
                 {% endfor %}
             </tbody>
         </table>
-    {% else %}
-        <p>Aucun livre disponible.</p>
-    {% endif %}
+        {% else %}
+            <p>Aucun livre disponible.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
