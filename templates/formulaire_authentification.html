@@ -7,9 +7,11 @@
 </head>
 <body>
     <h2>Authentification</h2>
+
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
+
     <form action="{{ url_for('authentification') }}" method="post">
         <label for="email">Email:</label><br>
         <input type="email" id="email" name="email" required><br><br>
@@ -21,8 +23,12 @@
     </form>
 
     <p><strong>Identifiants de test :</strong><br>
+       <em>Admin :</em><br>
        Email : admin@biblio.com<br>
-       Mot de passe : password
+       Mot de passe : password<br><br>
+       <em>Utilisateur :</em><br>
+       Email : user@biblio.com<br>
+       Mot de passe : 12345
     </p>
 </body>
 </html>
