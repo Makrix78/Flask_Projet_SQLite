@@ -30,13 +30,14 @@ def authentification():
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
 
-            cursor.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
+            cursor.execute("SELECT ID_utilisateur, Role FROM Utilisateurs WHERE Email = ? AND Mot_de_passe = ?", 
+                           (email, mot_de_passe))
             utilisateur = cursor.fetchone()
             conn.close()
 
             if utilisateur:
                 session['authentifie'] = True
-                session['role'] = utilisateur[5]  # Récupère le rôle de l'utilisateur
+                session['role'] = utilisateur[1]  # Récupère le rôle de l'utilisateur
                 session['user_id'] = utilisateur[0]
                 return redirect(url_for('accueil'))
             else:
@@ -49,6 +50,7 @@ def authentification():
             return render_template('formulaire_authentification.html', error=f"Erreur serveur : {e}")
 
     return render_template('formulaire_authentification.html', error=False)
+
 
 # Route pour la déconnexion
 @app.route('/deconnexion')
@@ -126,35 +128,35 @@ def supprimer_livre(livre_id):
 # Route pour emprunter un livre
 @app.route('/emprunter_livre/<int:livre_id>', methods=['POST'])
 def emprunter_livre(livre_id):
-    if not est_authentifie():  # Vérifier si l'utilisateur est authentifié
-        return redirect(url_for('authentification'))  # Redirige si non authentifié
+    if not est_authentifie():
+        return redirect(url_for('authentification'))
 
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        # Vérifier la quantité disponible avant l'emprunt
-        cursor.execute("SELECT quantite FROM livres WHERE id = ?", (livre_id,))
+        cursor.execute("SELECT Quantite FROM Livres WHERE ID_livre = ?", (livre_id,))
         livre = cursor.fetchone()
 
         if livre and livre[0] > 0:
-            # Réduire la quantité de 1
-            cursor.execute("UPDATE livres SET quantite = quantite - 1 WHERE id = ?", (livre_id,))
+            # Réduire la quantité
+            cursor.execute("UPDATE Livres SET Quantite = Quantite - 1 WHERE ID_livre = ?", (livre_id,))
             conn.commit()
 
-            # Enregistrer l'emprunt dans la table "emprunts"
-            cursor.execute("INSERT INTO emprunts (user_id, livre_id) VALUES (?, ?)", (session['user_id'], livre_id))
+            # Enregistrer l'emprunt avec une date de retour prévue (par exemple, 14 jours plus tard)
+            cursor.execute("INSERT INTO Emprunts (ID_utilisateur, ID_livre, Date_retour_prevue) VALUES (?, ?, DATE('now', '+14 days'))", 
+                           (session['user_id'], livre_id))
             conn.commit()
 
             conn.close()
-            return redirect(url_for('liste_livres'))  # Rediriger après l'emprunt
+            return redirect(url_for('liste_livres'))
         else:
             conn.close()
-            return redirect(url_for('liste_livres', message="Quantité insuffisante pour emprunter ce livre."))
+            return redirect(url_for('liste_livres', message="Quantité insuffisante."))
 
     except sqlite3.DatabaseError as e:
-        print("Erreur de base de données lors de l'emprunt :", e)
-        return redirect(url_for('liste_livres', message="Erreur lors de l'emprunt du livre."))
+        print("Erreur base de données :", e)
+        return redirect(url_for('liste_livres', message="Erreur lors de l'emprunt."))
 
     except Exception as e:
         print("Erreur serveur :", e)
