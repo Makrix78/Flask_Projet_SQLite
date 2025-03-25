@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS Emprunts;
+DROP TABLE IF EXISTS Utilisateurs;
+DROP TABLE IF EXISTS Livres;
+
 CREATE TABLE Livres (
     ID_livre INTEGER PRIMARY KEY AUTOINCREMENT,
     Titre VARCHAR(255),
@@ -7,7 +11,7 @@ CREATE TABLE Livres (
 );
 
 CREATE TABLE Utilisateurs (
-    ID_utilisateur INT PRIMARY KEY,
+    ID_utilisateur INTEGER PRIMARY KEY AUTOINCREMENT,
     Nom VARCHAR(255),
     Prenom VARCHAR(255),
     Email VARCHAR(255),
@@ -17,10 +21,10 @@ CREATE TABLE Utilisateurs (
 );
 
 CREATE TABLE Emprunts (
-    ID_emprunt INT PRIMARY KEY,
-    ID_utilisateur INT,
-    ID_livre INT,
-    Date_emprunt DATE,
+    ID_emprunt INTEGER PRIMARY KEY AUTOINCREMENT,
+    ID_utilisateur INTEGER,
+    ID_livre INTEGER,
+    Date_emprunt DATE DEFAULT (DATE('now')),
     Date_retour_prevue DATE,
     Date_retour_effective DATE,
     FOREIGN KEY (ID_utilisateur) REFERENCES Utilisateurs(ID_utilisateur),
