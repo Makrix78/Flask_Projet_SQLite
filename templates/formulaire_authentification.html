@@ -4,31 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Authentification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            color: #555;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .info {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Authentification</h2>
+    <div class="container">
+        <h2>Connexion à la bibliothèque</h2>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
 
-    <form action="{{ url_for('authentification') }}" method="post">
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
+        <form action="{{ url_for('authentification') }}" method="post">
+            <label for="email">Email :</label>
+            <input type="email" id="email" name="email" required>
 
-        <label for="mot_de_passe">Mot de passe:</label><br>
-        <input type="password" id="mot_de_passe" name="mot_de_passe" required><br><br>
+            <label for="mot_de_passe">Mot de passe :</label>
+            <input type="password" id="mot_de_passe" name="mot_de_passe" required>
 
-        <input type="submit" value="Se connecter">
-    </form>
+            <input type="submit" value="Se connecter">
+        </form>
 
-    <p><strong>Identifiants de test :</strong><br>
-       <em>Admin :</em><br>
-       Email : admin@biblio.com<br>
-       Mot de passe : password<br><br>
-       <em>Utilisateur :</em><br>
-       Email : user@biblio.com<br>
-       Mot de passe : 12345
-    </p>
+        <div class="info">
+            <strong>Identifiants test :</strong><br>
+            Email : admin@biblio.com<br>
+            Mot de passe : password
+        </div>
+    </div>
 </body>
 </html>
