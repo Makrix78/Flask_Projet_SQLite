@@ -30,16 +30,15 @@ def authentification():
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
 
-            cursor.execute("SELECT ID_utilisateur, Role FROM Utilisateurs WHERE Email = ? AND Mot_de_passe = ?", 
-                           (email, mot_de_passe))
+            cursor.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
             utilisateur = cursor.fetchone()
             conn.close()
 
             if utilisateur:
                 session['authentifie'] = True
-                session['role'] = utilisateur[1]  # Récupère le rôle de l'utilisateur
+                session['role'] = utilisateur[5]  # Récupère le rôle de l'utilisateur
                 session['user_id'] = utilisateur[0]
-                return redirect(url_for('accueil'))
+                return redirect(url_for('liste_livres'))  # Redirige vers la liste des livres après connexion
             else:
                 return render_template('formulaire_authentification.html', error="Identifiant ou mot de passe incorrect.")
 
@@ -50,7 +49,6 @@ def authentification():
             return render_template('formulaire_authentification.html', error=f"Erreur serveur : {e}")
 
     return render_template('formulaire_authentification.html', error=False)
-
 
 # Route pour la déconnexion
 @app.route('/deconnexion')
