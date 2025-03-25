@@ -32,6 +32,7 @@
         .top-bar {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
 
@@ -43,10 +44,15 @@
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .top-bar .logout-btn {
+            background-color: #6c757d;
         }
 
         .top-bar a button:hover {
-            background-color: #218838;
+            opacity: 0.9;
         }
 
         table {
@@ -108,14 +114,19 @@
     <div class="container">
         <h2>Liste des livres disponibles</h2>
 
-        {% if session.get('role') == 'admin' %}
         <div class="top-bar">
-            <div></div>
+            {% if session.get('role') == 'admin' %}
             <a href="{{ url_for('ajouter_livre') }}">
                 <button>Ajouter un livre</button>
             </a>
+            {% else %}
+            <div></div>
+            {% endif %}
+
+            <a href="{{ url_for('deconnexion') }}">
+                <button class="logout-btn">Déconnexion</button>
+            </a>
         </div>
-        {% endif %}
 
         {% if livres %}
         <table>
@@ -136,7 +147,6 @@
                     <td>{{ livre[3] }}</td>
                     <td>{{ livre[4] }}</td>
                     <td>
-                        <!-- ✅ Lien vers formulaire d'emprunt -->
                         <a href="{{ url_for('formulaire_emprunt', livre_id=livre[0]) }}" style="display:inline;">
                             <button class="btn-emprunter" {% if livre[4] == 0 %}disabled{% endif %}>
                                 Emprunter
