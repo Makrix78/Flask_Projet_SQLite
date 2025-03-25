@@ -1,30 +1,26 @@
-DROP TABLE IF EXISTS utilisateurs;
-CREATE TABLE utilisateurs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nom TEXT NOT NULL,
-    prenom TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    mot_de_passe TEXT NOT NULL,
-    role TEXT CHECK(role IN ('admin', 'utilisateur')) NOT NULL
+CREATE TABLE Livres (
+    ID_livre INT PRIMARY KEY,
+    Titre VARCHAR(255),
+    Auteur VARCHAR(255),
+    Annee_publication INT,
+    Quantite INT
 );
 
-DROP TABLE IF EXISTS livres;
-CREATE TABLE livres (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    titre TEXT NOT NULL,
-    auteur TEXT NOT NULL,
-    annee_publication INTEGER NOT NULL,
-    quantite INTEGER NOT NULL CHECK(quantite >= 0)
+CREATE TABLE Utilisateurs (
+    ID_utilisateur INT PRIMARY KEY,
+    Nom VARCHAR(255),
+    Prenom VARCHAR(255),
+    Email VARCHAR(255),
+    Date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-DROP TABLE IF EXISTS emprunts;
-CREATE TABLE emprunts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    utilisateur_id INTEGER NOT NULL,
-    livre_id INTEGER NOT NULL,
-    date_emprunt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    date_retour_prevu TIMESTAMP NOT NULL,
-    date_retour_effectif TIMESTAMP,
-    FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id),
-    FOREIGN KEY(livre_id) REFERENCES livres(id)
+CREATE TABLE Emprunts (
+    ID_emprunt INT PRIMARY KEY,
+    ID_utilisateur INT,
+    ID_livre INT,
+    Date_emprunt DATE,
+    Date_retour_prevue DATE,
+    Date_retour_effective DATE,
+    FOREIGN KEY (ID_utilisateur) REFERENCES Utilisateurs(ID_utilisateur),
+    FOREIGN KEY (ID_livre) REFERENCES Livres(ID_livre)
 );
