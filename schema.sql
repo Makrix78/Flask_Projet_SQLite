@@ -1,5 +1,5 @@
 CREATE TABLE Livres (
-    ID_livre INT PRIMARY KEY,
+    ID_livre INTEGER PRIMARY KEY AUTOINCREMENT,
     Titre VARCHAR(255),
     Auteur VARCHAR(255),
     Annee_publication INT,
