@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import sqlite3
 
 app = Flask(__name__)
@@ -124,7 +124,38 @@ def emprunter_livre(livre_id):
     except Exception as e:
         print("Erreur emprunt:", e)
         return redirect(url_for('liste_livres'))
-from flask import jsonify  # Assure-toi que ce soit importé en haut
+
+@app.route('/formulaire_emprunt/<int:livre_id>', methods=['GET', 'POST'])
+def formulaire_emprunt(livre_id):
+    if not est_authentifie():
+        return redirect(url_for('authentification'))
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        try:
+            cursor.execute("SELECT quantite FROM livres WHERE id = ?", (livre_id,))
+            livre = cursor.fetchone()
+            if livre and livre[0] > 0:
+                cursor.execute("UPDATE livres SET quantite = quantite - 1 WHERE id = ?", (livre_id,))
+                cursor.execute("INSERT INTO emprunts (user_id, livre_id, date_retour_prevue) VALUES (?, ?, DATE('now', '+14 days'))",
+                               (session['user_id'], livre_id))
+                conn.commit()
+            conn.close()
+            return redirect(url_for('liste_livres'))
+        except Exception as e:
+            conn.close()
+            return f"Erreur lors de l'emprunt : {e}", 500
+
+    cursor.execute("SELECT * FROM livres WHERE id = ?", (livre_id,))
+    livre_info = cursor.fetchone()
+    conn.close()
+
+    if not livre_info:
+        return "Livre non trouvé", 404
+
+    return render_template("formulaire_emprunt.html", livre=livre_info)
 
 @app.route('/api/emprunter_livre', methods=['POST'])
 def api_emprunter_livre():
