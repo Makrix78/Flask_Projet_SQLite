@@ -66,7 +66,7 @@ def liste_livres():
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM livres WHERE quantite > 0")
+        cursor.execute("SELECT * FROM Livres WHERE Quantite > 0")
         livres = cursor.fetchall()
         conn.close()
         return render_template('liste_livres.html', livres=livres)
