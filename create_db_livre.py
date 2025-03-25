@@ -7,7 +7,7 @@ with open('schema.sql') as f:
 
 cur = connection.cursor()
 
-# Ajouter un utilisateur admin
+# Ajouter un utilisateur adminn
 cur.execute("""
 INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Role)
 VALUES (?, ?, ?, ?, ?)
