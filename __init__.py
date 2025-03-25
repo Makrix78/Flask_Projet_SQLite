@@ -124,6 +124,37 @@ def emprunter_livre(livre_id):
     except Exception as e:
         print("Erreur emprunt:", e)
         return redirect(url_for('liste_livres'))
+from flask import jsonify  # Assure-toi que ce soit importé en haut
+
+@app.route('/api/emprunter_livre', methods=['POST'])
+def api_emprunter_livre():
+    data = request.get_json()
+    if not data or 'user_id' not in data or 'livre_id' not in data:
+        return jsonify({"success": False, "error": "Champs requis : user_id et livre_id"}), 400
+
+    user_id = data['user_id']
+    livre_id = data['livre_id']
+
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT quantite FROM livres WHERE id = ?", (livre_id,))
+        livre = cursor.fetchone()
+
+        if livre and livre[0] > 0:
+            cursor.execute("UPDATE livres SET quantite = quantite - 1 WHERE id = ?", (livre_id,))
+            cursor.execute("INSERT INTO emprunts (user_id, livre_id, date_retour_prevue) VALUES (?, ?, DATE('now', '+14 days'))",
+                           (user_id, livre_id))
+            conn.commit()
+            conn.close()
+            return jsonify({"success": True, "message": "Livre emprunté avec succès."}), 200
+        else:
+            conn.close()
+            return jsonify({"success": False, "error": "Livre non disponible."}), 400
+
+    except Exception as e:
+        print("Erreur API emprunt :", e)
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
