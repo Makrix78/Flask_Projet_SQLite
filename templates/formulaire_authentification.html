@@ -3,155 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Livres disponibles • Bibliothèque</title>
+    <title>Connexion • Bibliothèque en ligne</title>
     <style>
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(120deg, #4b6cb7, #182848);
             color: #333;
-            min-height: 100vh;
-            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: auto;
+        .login-container {
             background-color: #fff;
-            padding: 30px 40px;
+            padding: 40px 30px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 420px;
         }
 
-        h2 {
+        .login-container h2 {
+            margin-bottom: 20px;
             text-align: center;
-            margin-bottom: 30px;
             color: #2c3e50;
         }
 
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .top-bar a button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
 
-        .top-bar a button:hover {
-            background-color: #218838;
-        }
-
-        table {
+        .form-group input {
             width: 100%;
-            border-collapse: collapse;
-            border-radius: 8px;
-            overflow: hidden;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
         }
 
-        th, td {
-            padding: 14px;
-            text-align: center;
+        .form-group input:focus {
+            border-color: #4b6cb7;
+            outline: none;
         }
 
-        th {
+        .btn-login {
+            width: 100%;
+            padding: 12px;
             background-color: #4b6cb7;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        td button {
-            padding: 6px 12px;
             border: none;
-            border-radius: 4px;
-            font-size: 0.9em;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: 500;
+            transition: background-color 0.3s ease;
         }
 
-        .btn-emprunter {
-            background-color: #17a2b8;
-            color: white;
+        .btn-login:hover {
+            background-color: #3a539b;
         }
 
-        .btn-emprunter:hover {
-            background-color: #138496;
-        }
-
-        .btn-supprimer {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-supprimer:hover {
-            background-color: #c82333;
-        }
-
-        .message {
+        .error-message {
+            color: #e74c3c;
             text-align: center;
-            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .test-info {
+            margin-top: 25px;
+            font-size: 0.9em;
+            text-align: center;
             color: #666;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Liste des livres disponibles</h2>
+    <div class="login-container">
+        <h2>Connexion à la bibliothèque</h2>
 
-        {% if session.get('role') == 'admin' %}
-        <div class="top-bar">
-            <div></div>
-            <a href="{{ url_for('ajouter_livre') }}">
-                <button>Ajouter un livre</button>
-            </a>
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        <form action="{{ url_for('authentification') }}" method="post">
+            <div class="form-group">
+                <label for="email">Adresse e-mail</label>
+                <input type="email" id="email" name="email" required placeholder="ex : admin@biblio.com">
+            </div>
+
+            <div class="form-group">
+                <label for="mot_de_passe">Mot de passe</label>
+                <input type="password" id="mot_de_passe" name="mot_de_passe" required placeholder="Votre mot de passe">
+            </div>
+
+            <button type="submit" class="btn-login">Se connecter</button>
+        </form>
+
+        <div class="test-info">
+            <strong>Identifiants de test</strong><br>
+            Email : <code>admin@biblio.com</code><br>
+            Mot de passe : <code>password</code>
         </div>
-        {% endif %}
-
-        {% if livres %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Titre</th>
-                    <th>Auteur</th>
-                    <th>Année</th>
-                    <th>Quantité</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for livre in livres %}
-                <tr>
-                    <td>{{ livre[1] }}</td>
-                    <td>{{ livre[2] }}</td>
-                    <td>{{ livre[3] }}</td>
-                    <td>{{ livre[4] }}</td>
-                    <td>
-                        <form action="{{ url_for('emprunter_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
-                            <button class="btn-emprunter" type="submit" {% if livre[4] == 0 %}disabled{% endif %}>Emprunter</button>
-                        </form>
-                        {% if session.get('role') == 'admin' %}
-                        <form action="{{ url_for('supprimer_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
-                            <button class="btn-supprimer" type="submit" onclick="return confirm('Supprimer ce livre ?')">Supprimer</button>
-                        </form>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-            <p class="message">Aucun livre disponible.</p>
-        {% endif %}
     </div>
 </body>
 </html>
