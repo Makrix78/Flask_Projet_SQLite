@@ -26,7 +26,7 @@ def authentification():
         try:
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM Utilisateurs WHERE Email = ? AND Mot_de_passe = ?", (email, mot_de_passe))
+            cursor.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
             utilisateur = cursor.fetchone()
             conn.close()
 
@@ -54,7 +54,7 @@ def liste_livres():
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Livres WHERE Quantite > 0")
+        cursor.execute("SELECT * FROM livres WHERE quantite > 0")
         livres = cursor.fetchall()
         conn.close()
         return render_template('liste_livres.html', livres=livres)
@@ -78,7 +78,7 @@ def ajouter_livre():
         try:
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO Livres (Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?)",
+            cursor.execute("INSERT INTO livres (titre, auteur, annee_publication, quantite) VALUES (?, ?, ?, ?)",
                            (titre, auteur, annee, quantite))
             conn.commit()
             conn.close()
@@ -95,7 +95,7 @@ def supprimer_livre(livre_id):
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM Livres WHERE ID_livre = ?", (livre_id,))
+        cursor.execute("DELETE FROM livres WHERE id = ?", (livre_id,))
         conn.commit()
         conn.close()
         return redirect(url_for('liste_livres'))
@@ -111,19 +111,19 @@ def emprunter_livre(livre_id):
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT Quantite FROM Livres WHERE ID_livre = ?", (livre_id,))
+        cursor.execute("SELECT quantite FROM livres WHERE id = ?", (livre_id,))
         livre = cursor.fetchone()
 
         if livre and livre[0] > 0:
-            cursor.execute("UPDATE Livres SET Quantite = Quantite - 1 WHERE ID_livre = ?", (livre_id,))
-            cursor.execute(\"\"\"INSERT INTO Emprunts (ID_utilisateur, ID_livre, Date_retour_prevue)
-                              VALUES (?, ?, DATE('now', '+14 days'))\"\"\", (session['user_id'], livre_id))
+            cursor.execute("UPDATE livres SET quantite = quantite - 1 WHERE id = ?", (livre_id,))
+            cursor.execute("INSERT INTO emprunts (user_id, livre_id, date_retour_prevue) VALUES (?, ?, DATE('now', '+14 days'))",
+                           (session['user_id'], livre_id))
             conn.commit()
         conn.close()
         return redirect(url_for('liste_livres'))
     except Exception as e:
-        print(\"Erreur emprunt:\", e)
+        print("Erreur emprunt:", e)
         return redirect(url_for('liste_livres'))
 
-if __name__ == \"__main__\":
+if __name__ == "__main__":
     app.run(debug=True)
