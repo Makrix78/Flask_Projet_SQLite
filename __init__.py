@@ -12,7 +12,7 @@ def est_admin():
 
 @app.route('/')
 def accueil():
-    return render_template('accueil.html')
+    return redirect(url_for('authentification'))
 
 @app.route('/authentification', methods=['GET', 'POST'])
 def authentification():
@@ -47,7 +47,6 @@ def deconnexion():
     session.clear()
     return redirect(url_for('authentification'))
 
-
 @app.route('/liste_livres')
 def liste_livres():
     if not est_authentifie():
@@ -61,6 +60,25 @@ def liste_livres():
         return render_template('liste_livres.html', livres=livres)
     except Exception as e:
         return render_template('liste_livres.html', livres=[], message=f"Erreur : {e}")
+
+@app.route('/mes_emprunts')
+def mes_emprunts():
+    if not est_authentifie():
+        return redirect(url_for('authentification'))
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT Livres.Titre, Livres.Auteur, Emprunts.Date_emprunt, Emprunts.Date_retour_prevue, Emprunts.Date_retour_effective
+            FROM Emprunts
+            JOIN Livres ON Emprunts.ID_livre = Livres.ID_livre
+            WHERE Emprunts.ID_utilisateur = ?
+        """, (session['user_id'],))
+        emprunts = cursor.fetchall()
+        conn.close()
+        return render_template('mes_emprunts.html', emprunts=emprunts)
+    except Exception as e:
+        return render_template('mes_emprunts.html', emprunts=[], message=f"Erreur : {e}")
 
 @app.route('/ajouter_livre', methods=['GET', 'POST'])
 def ajouter_livre():
