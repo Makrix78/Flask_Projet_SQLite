@@ -45,7 +45,8 @@ def authentification():
 @app.route('/deconnexion')
 def deconnexion():
     session.clear()
-    return redirect(url_for('accueil'))
+    return redirect(url_for('authentification'))
+
 
 @app.route('/liste_livres')
 def liste_livres():
