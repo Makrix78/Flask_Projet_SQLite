@@ -7,7 +7,7 @@ with open('schema.sql') as f:
 
 cur = connection.cursor()
 
-# Ajouter des livres de test
+# Ajouter des livres de testBBLA
 cur.execute("INSERT INTO Livres (Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?)", 
             ('Emilie', 'Victor', 2024, 10))
 cur.execute("INSERT INTO Livres (Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?)", 
