@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Emprunter un livre</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(120deg, #4b6cb7, #182848);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .livre-info {
+            margin: 20px 0;
+        }
+
+        .livre-info p {
+            margin: 10px 0;
+        }
+
+        button {
+            width: 100%;
+            background-color: #4b6cb7;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #3a539b;
+        }
+
+        .back {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .back a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .back a:hover {
+            text-decoration: underline;
+        }
+
+        .message-erreur {
+            color: red;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Emprunter le livre</h2>
+
+        <div class="livre-info">
+            <p><strong>Titre :</strong> {{ livre[1] }}</p>
+            <p><strong>Auteur :</strong> {{ livre[2] }}</p>
+            <p><strong>Année :</strong> {{ livre[3] }}</p>
+            <p><strong>Quantité disponible :</strong> {{ livre[4] }}</p>
+        </div>
+
+        {% if erreur %}
+            <div class="message-erreur">{{ erreur }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <button type="submit" {% if livre[4] == 0 %}disabled{% endif %}>Confirmer l'emprunt</button>
+        </form>
+
+        <div class="back">
+            <a href="{{ url_for('liste_livres') }}">← Retour à la liste des livres</a>
+        </div>
+    </div>
+</body>
+</html>
