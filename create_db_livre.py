@@ -1,5 +1,5 @@
 import sqlite3
-
+#d
 connection = sqlite3.connect('database2.db')
 
 with open('schema2.sql') as f:
