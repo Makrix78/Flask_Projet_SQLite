@@ -7,17 +7,23 @@ with open('schema.sql') as f:
 
 cur = connection.cursor()
 
-# Livres initiaux
-cur.execute("INSERT INTO Livres (Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?)", 
-            ('Emilie', 'Victor', 2024, 10))
-cur.execute("INSERT INTO Livres (Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?)", 
-            ('Didier', 'Laurent', 2023, 5))
-
-# Utilisateur admin
+# Ajouter un utilisateur admin
 cur.execute("""
 INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Role)
 VALUES (?, ?, ?, ?, ?)
 """, ('Admin', 'Super', 'admin@biblio.com', 'password', 'admin'))
+
+# Générer 500 livres
+for i in range(1, 501):
+    titre = f"Livre {i}"
+    auteur = f"Auteur {i}"
+    annee = 2000 + (i % 24)
+    quantite = (i % 10) + 1
+
+    cur.execute(
+        "INSERT INTO Livres (Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?)",
+        (titre, auteur, annee, quantite)
+    )
 
 connection.commit()
 connection.close()
