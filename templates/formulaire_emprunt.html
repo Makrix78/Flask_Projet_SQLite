@@ -2,99 +2,134 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Emprunter un livre</title>
+    <title>Mes emprunts • Bibliothèque</title>
     <style>
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(120deg, #4b6cb7, #182848);
             color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            padding: 40px 20px;
         }
 
-        .form-container {
-            background: white;
-            padding: 40px;
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px 40px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            max-width: 500px;
-            width: 100%;
         }
 
         h2 {
             text-align: center;
             color: #2c3e50;
+            margin-bottom: 30px;
         }
 
-        .livre-info {
-            margin: 20px 0;
-        }
-
-        .livre-info p {
-            margin: 10px 0;
-        }
-
-        button {
+        table {
             width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: center;
+        }
+
+        th {
             background-color: #4b6cb7;
             color: white;
-            padding: 12px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .message {
+            text-align: center;
+            color: #777;
+            margin-top: 20px;
+        }
+
+        .btn-retour {
+            display: block;
+            margin: 30px auto 0;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 25px;
             border: none;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #3a539b;
-        }
-
-        .back {
-            margin-top: 20px;
             text-align: center;
-        }
-
-        .back a {
-            color: #007bff;
             text-decoration: none;
         }
 
-        .back a:hover {
-            text-decoration: underline;
+        .btn-retour:hover {
+            background-color: #5a6268;
         }
 
-        .message-erreur {
-            color: red;
-            text-align: center;
-            margin-top: 15px;
+        .btn-rendre {
+            background-color: #ffc107;
+            color: black;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-rendre:hover {
+            background-color: #e0a800;
         }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h2>Emprunter le livre</h2>
+    <div class="container">
+        <h2>Mes emprunts</h2>
 
-        <div class="livre-info">
-            <p><strong>Titre :</strong> {{ livre[1] }}</p>
-            <p><strong>Auteur :</strong> {{ livre[2] }}</p>
-            <p><strong>Année :</strong> {{ livre[3] }}</p>
-            <p><strong>Quantité disponible :</strong> {{ livre[4] }}</p>
-        </div>
-
-        {% if erreur %}
-            <div class="message-erreur">{{ erreur }}</div>
+        {% if emprunts %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Auteur</th>
+                    <th>Date d'emprunt</th>
+                    <th>Date retour prévue</th>
+                    <th>Retour effective</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emprunt in emprunts %}
+                <tr>
+                    <td>{{ emprunt[1] }}</td>
+                    <td>{{ emprunt[2] }}</td>
+                    <td>{{ emprunt[3] }}</td>
+                    <td>{{ emprunt[4] }}</td>
+                    <td>{{ emprunt[5] if emprunt[5] else "—" }}</td>
+                    <td>
+                        {% if not emprunt[5] %}
+                        <form action="{{ url_for('retourner_livre', emprunt_id=emprunt[0]) }}" method="POST">
+                            <button class="btn-rendre" type="submit">Rendre</button>
+                        </form>
+                        {% else %}
+                        <span style="color: green; font-weight: bold;">Retourné</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="message">Vous n'avez encore emprunté aucun livre.</p>
         {% endif %}
 
-        <form method="POST">
-            <button type="submit" {% if livre[4] == 0 %}disabled{% endif %}>Confirmer l'emprunt</button>
-        </form>
-
-        <div class="back">
-            <a href="{{ url_for('liste_livres') }}">← Retour à la liste des livres</a>
-        </div>
+        <a href="{{ url_for('liste_livres') }}" class="btn-retour">← Retour à la liste des livres</a>
     </div>
 </body>
 </html>
