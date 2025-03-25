@@ -7,8 +7,15 @@ with open('schema.sql') as f:
 
 cur = connection.cursor()
 
-cur.execute("INSERT INTO Livres (ID_livre, Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?, ?)",(1, 'Emilie', 'Victor', 2024, 10))
-cur.execute("INSERT INTO Livres (ID_livre, Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?, ?)",(2, 'Didier', 'Laurent', 2023, 5))
+# Ajouter des livres de test
+cur.execute("INSERT INTO Livres (Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?)", 
+            ('Emilie', 'Victor', 2024, 10))
+cur.execute("INSERT INTO Livres (Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?)", 
+            ('Didier', 'Laurent', 2023, 5))
+
+# Ajouter un utilisateur admin
+cur.execute("INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Role) VALUES (?, ?, ?, ?, ?)", 
+            ('Admin', 'Super', 'admin@example.com', 'admin123', 'admin'))
 
 connection.commit()
 connection.close()
