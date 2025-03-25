@@ -8,10 +8,12 @@
 <body>
     <h2>Liste des livres disponibles</h2>
 
-    <!-- Bouton Ajouter un livre visible pour tous -->
+    <!-- Affiche le bouton seulement si admin -->
+    {% if session.get('role') == 'admin' %}
     <a href="{{ url_for('ajouter_livre') }}">
         <button>Ajouter un livre</button>
     </a>
+    {% endif %}
 
     {% if livres %}
         <table border="1">
@@ -19,34 +21,31 @@
                 <tr>
                     <th>Titre</th>
                     <th>Auteur</th>
-                    <th>Année de publication</th>
-                    <th>Quantité disponible</th>
+                    <th>Année</th>
+                    <th>Quantité</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for livre in livres %}
-                    <tr>
-                        <td>{{ livre[1] }}</td>  <!-- Titre du livre -->
-                        <td>{{ livre[2] }}</td>  <!-- Auteur -->
-                        <td>{{ livre[3] }}</td>  <!-- Année de publication -->
-                        <td>{{ livre[4] }}</td>  <!-- Quantité disponible -->
-                        <td>
-                            <!-- Formulaire pour emprunter le livre -->
-                            <form action="{{ url_for('emprunter_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
-                                <button type="submit" {% if livre[4] == 0 %} disabled {% endif %}>
-                                    Emprunter
-                                </button>
-                            </form>
-
-                            <!-- Formulaire pour supprimer le livre -->
-                            <form action="{{ url_for('supprimer_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
-                                <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?');">
-                                    Supprimer
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>{{ livre[1] }}</td>
+                    <td>{{ livre[2] }}</td>
+                    <td>{{ livre[3] }}</td>
+                    <td>{{ livre[4] }}</td>
+                    <td>
+                        <!-- Emprunter -->
+                        <form action="{{ url_for('emprunter_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
+                            <button type="submit" {% if livre[4] == 0 %}disabled{% endif %}>Emprunter</button>
+                        </form>
+                        <!-- Supprimer (admin uniquement) -->
+                        {% if session.get('role') == 'admin' %}
+                        <form action="{{ url_for('supprimer_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
+                            <button type="submit" onclick="return confirm('Supprimer ce livre ?')">Supprimer</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
