@@ -4,32 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter un livre</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 50px 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Ajouter un nouveau livre</h2>
+    <div class="container">
+        <h2>Ajouter un nouveau livre</h2>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
 
-    <form action="{{ url_for('ajouter_livre') }}" method="post">
-        <label for="titre">Titre :</label>
-        <input type="text" id="titre" name="titre" required><br><br>
+        <form action="{{ url_for('ajouter_livre') }}" method="post">
+            <label for="titre">Titre :</label>
+            <input type="text" id="titre" name="titre" required>
 
-        <label for="auteur">Auteur :</label>
-        <input type="text" id="auteur" name="auteur" required><br><br>
+            <label for="auteur">Auteur :</label>
+            <input type="text" id="auteur" name="auteur" required>
 
-        <label for="annee">Année de publication :</label>
-        <input type="number" id="annee" name="annee" required><br><br>
+            <label for="annee">Année de publication :</label>
+            <input type="number" id="annee" name="annee" required>
 
-        <label for="quantite">Quantité :</label>
-        <input type="number" id="quantite" name="quantite" required><br><br>
+            <label for="quantite">Quantité :</label>
+            <input type="number" id="quantite" name="quantite" required>
 
-        <button type="submit">Ajouter</button>
-    </form>
+            <button type="submit">Ajouter</button>
+        </form>
 
-    <br>
-    <a href="{{ url_for('liste_livres') }}">Retour à la liste des livres</a>
+        <a class="back-link" href="{{ url_for('liste_livres') }}">← Retour à la liste des livres</a>
+    </div>
 </body>
 </html>
-
