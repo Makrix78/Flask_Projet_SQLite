@@ -11,6 +11,8 @@ CREATE TABLE Utilisateurs (
     Nom VARCHAR(255),
     Prenom VARCHAR(255),
     Email VARCHAR(255),
+    Mot_de_passe VARCHAR(255),
+    Role VARCHAR(50),
     Date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
