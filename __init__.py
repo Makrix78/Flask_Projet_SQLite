@@ -43,12 +43,15 @@ def authentification():
                 return render_template('formulaire_authentification.html', error="Identifiant ou mot de passe incorrect.")
 
         except sqlite3.DatabaseError as e:
+            print(f"Erreur de base de données : {e}")
             return render_template('formulaire_authentification.html', error=f"Erreur de base de données : {e}")
 
         except Exception as e:
+            print(f"Erreur serveur : {e}")
             return render_template('formulaire_authentification.html', error=f"Erreur serveur : {e}")
 
     return render_template('formulaire_authentification.html', error=False)
+
 
 # Route pour la déconnexion
 @app.route('/deconnexion')
