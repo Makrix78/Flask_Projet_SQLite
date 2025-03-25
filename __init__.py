@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -69,7 +70,7 @@ def mes_emprunts():
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT Livres.Titre, Livres.Auteur, Emprunts.Date_emprunt, Emprunts.Date_retour_prevue, Emprunts.Date_retour_effective
+            SELECT Emprunts.ID_emprunt, Livres.Titre, Livres.Auteur, Emprunts.Date_emprunt, Emprunts.Date_retour_prevue, Emprunts.Date_retour_effective
             FROM Emprunts
             JOIN Livres ON Emprunts.ID_livre = Livres.ID_livre
             WHERE Emprunts.ID_utilisateur = ?
@@ -79,6 +80,32 @@ def mes_emprunts():
         return render_template('mes_emprunts.html', emprunts=emprunts)
     except Exception as e:
         return render_template('mes_emprunts.html', emprunts=[], message=f"Erreur : {e}")
+
+@app.route('/retourner_livre/<int:emprunt_id>', methods=['POST'])
+def retourner_livre(emprunt_id):
+    if not est_authentifie():
+        return redirect(url_for('authentification'))
+
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        # Récupérer l'ID du livre associé à l'emprunt
+        cursor.execute("SELECT ID_livre FROM Emprunts WHERE ID_emprunt = ? AND ID_utilisateur = ?", (emprunt_id, session['user_id']))
+        result = cursor.fetchone()
+
+        if result:
+            id_livre = result[0]
+            cursor.execute("UPDATE Emprunts SET Date_retour_effective = ? WHERE ID_emprunt = ?", (datetime.now().date(), emprunt_id))
+            cursor.execute("UPDATE Livres SET Quantite = Quantite + 1 WHERE ID_livre = ?", (id_livre,))
+            conn.commit()
+
+        conn.close()
+        return redirect(url_for('mes_emprunts'))
+
+    except Exception as e:
+        print("Erreur retour livre :", e)
+        return redirect(url_for('mes_emprunts'))
 
 @app.route('/ajouter_livre', methods=['GET', 'POST'])
 def ajouter_livre():
