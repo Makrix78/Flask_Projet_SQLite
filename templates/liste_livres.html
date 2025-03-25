@@ -20,7 +20,7 @@
             background-color: #fff;
             padding: 30px 40px;
             border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
 
         h2 {
@@ -70,7 +70,7 @@
             background-color: #f2f2f2;
         }
 
-        td button, td a button {
+        td button {
             padding: 6px 12px;
             border: none;
             border-radius: 4px;
@@ -136,10 +136,9 @@
                     <td>{{ livre[3] }}</td>
                     <td>{{ livre[4] }}</td>
                     <td>
-                        <!-- Lien vers la page de confirmation d'emprunt -->
-                        <a href="{{ url_for('formulaire_emprunt', livre_id=livre[0]) }}">
-                            <button class="btn-emprunter" {% if livre[4] == 0 %}disabled{% endif %}>Emprunter</button>
-                        </a>
+                        <form action="{{ url_for('emprunter_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
+                            <button class="btn-emprunter" type="submit" {% if livre[4] == 0 %}disabled{% endif %}>Emprunter</button>
+                        </form>
                         {% if session.get('role') == 'admin' %}
                         <form action="{{ url_for('supprimer_livre', livre_id=livre[0]) }}" method="POST" style="display:inline;">
                             <button class="btn-supprimer" type="submit" onclick="return confirm('Supprimer ce livre ?')">Supprimer</button>
